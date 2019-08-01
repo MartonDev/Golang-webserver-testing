@@ -16,7 +16,7 @@ func main() {
 	fs := http.FileServer(HTMLDir{http.Dir("public/")})
 
 	http.Handle("/", http.StripPrefix("/", fs))
-	http.Handle("/api/", api.API)
+	http.HandleFunc("/api/", api.API)
 	http.ListenAndServe(":8000", nil)
 
 }
