@@ -1,58 +1,40 @@
 package main
 
 import (
+	"net/http"
+	"os"
 
-  "net/http"
-  "os"
-  "fmt"
-
+	"github.com/martondev/Golang-webserver-testing/api"
 )
 
 type HTMLDir struct {
-
-  d http.Dir
-
+	d http.Dir
 }
 
 func main() {
 
-  fs := http.FileServer(HTMLDir{http.Dir("public/")})
+	fs := http.FileServer(HTMLDir{http.Dir("public/")})
 
-  http.Handle("/", http.StripPrefix("/", fs))
-  http.HandleFunc("/api/test", func(w http.ResponseWriter, r *http.Request) {
-
-    switch r.Method {
-
-    case "GET":
-      fmt.Fprintf(w, "GET")
-
-    case "POST":
-      fmt.Fprintf(w, "POST")
-
-    default:
-      fmt.Fprintf(w, "Other method")
-
-    }
-
-  })
-  http.ListenAndServe(":8000", nil)
+	http.Handle("/", http.StripPrefix("/", fs))
+	http.Handle("/api/", api.API)
+	http.ListenAndServe(":8000", nil)
 
 }
 
 func (d HTMLDir) Open(name string) (http.File, error) {
 
-  f, err := d.d.Open(name)
+	f, err := d.d.Open(name)
 
-  if os.IsNotExist(err) {
+	if os.IsNotExist(err) {
 
-    if f, err := d.d.Open(name + ".html"); err == nil {
+		if f, err := d.d.Open(name + ".html"); err == nil {
 
-      return f, nil
+			return f, nil
 
-    }
+		}
 
-  }
+	}
 
-  return f, err
+	return f, err
 
 }
